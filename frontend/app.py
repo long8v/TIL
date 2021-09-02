@@ -47,9 +47,12 @@ def update(id):
         try:
             db.session.commit()
             return redirect('/')
-        except:
+            
+        except Exception as e:
+            print(e)
             pass
     else:
+        print(request.method)
         return render_template('update.html', tasks=task)
 
 if __name__ == '__main__':
