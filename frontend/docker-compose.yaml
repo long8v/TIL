@@ -1,0 +1,8 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    ports: 
+      - '9999:9999'
+    volumes:
+      - ./backend/frontend:/usr/src/app
