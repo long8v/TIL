@@ -73,5 +73,5 @@ def update(id):
         return render_template('update.html', tasks=task)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)
     content = db.Column(db.String(200), nullable=False) 
