@@ -5,4 +5,11 @@ services:
     ports: 
       - '9999:9999'
     volumes:
-      - ./backend/frontend:/usr/src/app
+      - ./backend:/usr/src/app
+
+  redis:
+    build: ./redis
+    ports:
+      - 8081:8081
+    volumes:
+      - ./redis:/usr/src/redis
