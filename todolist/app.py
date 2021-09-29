@@ -1,6 +1,8 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from redis.sentinel import Sentinel
+from redis import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -11,12 +13,14 @@ class Todo(db.Model):
     content = db.Column(db.String(200), nullable=False) 
     data_created = db.Column(db.DateTime, default=datetime.utcnow)
     done = db.Column(db.Boolean, default=True)
+    nth = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return f'cTask {self.id}>'
 
 @app.route('/do/<int:id>', methods=['POST', 'GET'])
 def do(id):
+
     if requset.method == 'POST':
         task_to_do = Todo.query.get_or_404(id)
         try:
@@ -31,9 +35,21 @@ def do(id):
         return render_template('index.html', tasks=tasks)
 
 
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    sentinel = Sentinel([('127.0.0.1', 23679), ('127.0.0.1', 23680), 
+                        ('127.0.0.1', 26381)], socket_timeout=0.1)
+    master = sentinel.master_for('mymaster')
+    slave = sentinel.slave_for('mymaster')
+    if not master.exists('log'):
+        print('there is no log')
+        master.set('log', 0)
+
     if request.method == 'POST':
+        log = int(master.get('log'))
+        log += 1 
+        master.set('log', log)
         task_content = request.form['content']
         new_task = Todo(content=task_content)
         try:

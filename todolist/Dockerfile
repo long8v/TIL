@@ -1,6 +1,6 @@
 FROM python:3.6.8
 
-RUN pip3 install flask flask_sqlalchemy
+RUN pip3 install flask flask_sqlalchemy redis
 
 # docker run path 
 WORKDIR /usr/src/app
