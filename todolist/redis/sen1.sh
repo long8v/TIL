@@ -14,7 +14,7 @@ case "$1" in
         then
             echo "$PIDFILE exists, process is already running or crashed"
         else
-            echo "Starting Redis Sentinel server..."
+            echo "Starting Redis Sentinel server...1"
             $EXEC $CONF
         fi
         ;;

@@ -3,7 +3,6 @@ services:
   backend:
     build: .
     ports: 
-      # outside docker : inside docker
       - "8088:8080"
     volumes:
       - .:/usr/src/app

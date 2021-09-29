@@ -5,7 +5,7 @@ EXEC=/usr/local/bin/redis-sentinel
 CLIEXEC=/usr/local/bin/redis-cli
 PIDFILE=/var/run/sentinel_8000.pid
 CONF="./sentinel3.conf"
-REDISPORT="23700"
+REDISPORT="23702"
 
 
 case "$1" in
@@ -14,7 +14,7 @@ case "$1" in
         then
             echo "$PIDFILE exists, process is already running or crashed"
         else
-            echo "Starting Redis Sentinel server..."
+            echo "Starting Redis Sentinel server..3."
             $EXEC $CONF
         fi
         ;;
