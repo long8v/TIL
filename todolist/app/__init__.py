@@ -19,8 +19,17 @@ app.config.update(
     TEMPLATES_AUTO_RELOAD=True
 )
 
-db = MongoEngine(app)
-redis_client = FlaskRedis(app)
+# db = MongoEngine(app)
+
+if app.config['USE_SENTINEL']:
+    sentinel_ports = app.config['REDIS_SENTINEL_PORTS']
+    redis_host = app.config['REDIS_HOST']
+    sentinel = Sentinel([(redis_host, port)
+                        for port in sentinel_ports], 
+                        socket_timeout=app.config["REDIS_SOCKET_TIMEOUT"])
+    redis_client = sentinel.master_for('mymaster')
+else:
+    redis_client = FlaskRedis(app)
 
 my_signals = Namespace()
 

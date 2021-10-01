@@ -4,6 +4,7 @@ from redis.sentinel import Sentinel
 from redis import *
 from app import app, redis_client, Todo, db
 from datetime import timedelta
+from app.redis_wrapper import *
 
 @app.route('/do/<int:id>', methods=['POST', 'GET'])
 def do(id):
@@ -26,30 +27,14 @@ def do(id):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    sentinel = Sentinel([('127.0.0.1', 23679), ('127.0.0.1', 23680), 
-                        ('127.0.0.1', 26381)], 
-                        socket_timeout=app.config["REDIS_SOCKET_TIMEOUT"])
-
-    master = sentinel.master_for('mymaster')
-    slave = sentinel.slave_for('mymaster') 
-    if not redis_client.hexists(12, 'log'):
-    # if not master.hexists(12, 'log'):
-        print('there is no log') 
-        # master.hset(12, 'log', 0) 
-        redis_client.hset(12, 'log', 0)
-        redis_client.expire(12, timedelta(seconds=app.config["REDIS_EXPIRE_TIME"]))
-
+    idx_key = 'nth'
+    idx_field = 'idx'
+    
     if request.method == 'POST':
-        # log = int(master.hget(12, 'log'))
-        log = int(redis_client.hget(12, 'log'))
-        log += 1 
-        
-        print(f'{log}th todo list')
-        # master.hset(12, 'log', log)
-        print(app.config["REDIS_EXPIRE_TIME"])
-        redis_client.hset(12, 'log', log)
-        redis_client.expire(12, timedelta(seconds=app.config["REDIS_EXPIRE_TIME"]))
-
+        idx = int(hget(idx_key, idx_field))
+        idx += 1 
+        hset(idx_key, idx_field, idx)
+        print(f'{idx}th todo list')
         task_content = request.form['content']
         new_task = Todo(content=task_content)
         try:
@@ -58,7 +43,6 @@ def index():
             return redirect('/')
         except Exception as E:
             return f'There was an issue adding your task\n{E}'
-    # log key
     else:
         tasks = Todo.query.order_by(Todo.data_created).all()
         return render_template('index.html', tasks=tasks)
