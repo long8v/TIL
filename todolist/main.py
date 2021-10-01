@@ -4,6 +4,7 @@ from datetime import datetime
 from redis.sentinel import Sentinel
 from redis import *
 from app import app, redis_client
+from datetime import timedelta
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
@@ -26,7 +27,7 @@ def do(id):
             print('are we doing?')
             task_to_do.done = ~task_to_do.done
             db.session.commmit()
-            return redirect('/')
+            return redirect('/') 
         except Exception as e:
             print(e)
     else:
@@ -38,20 +39,27 @@ def do(id):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     sentinel = Sentinel([('127.0.0.1', 23679), ('127.0.0.1', 23680), 
-                        ('127.0.0.1', 26381)], socket_timeout=0.1)
+                        ('127.0.0.1', 26381)], 
+                        socket_timeout=app.config["REDIS_SOCEKT_TIMEOUT"])
 
     master = sentinel.master_for('mymaster')
     slave = sentinel.slave_for('mymaster') 
 
     if not master.hexists(12, 'log'):
-        print('there is no log')
-        master.hset(12, 'log', 0)
+        print('there is no log') 
+        # master.hset(12, 'log', 0) 
+        redis_client.hset(12, 'log', log, 
+                        timedelta(seconds=app.config["REDIS_EXPIRE_TIME"]))
 
     if request.method == 'POST':
-        log = int(master.hget(12, 'log'))
+        # log = int(master.hget(12, 'log'))
+        log = int(redis_client.hget(12, 'log'))
         log += 1 
         print(f'{log}th todo list')
-        master.hset(12, 'log', log)
+        # master.hset(12, 'log', log)
+        redis_client.hset(12, 'log', log, 
+                        timedelta(seconds=app.config["REDIS_EXPIRE_TIME"])
+                        
         task_content = request.form['content']
         new_task = Todo(content=task_content)
         try:

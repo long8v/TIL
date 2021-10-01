@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-from flask_mongoengine import flask_mongoengine
+from flask_mongoengine import MongoEngine
 from flask_redis import FlaskRedis
 
 app = Flask(__name__)
