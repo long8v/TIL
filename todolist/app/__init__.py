@@ -1,6 +1,7 @@
 import os
 from blinker import Namespace
 from datetime import datetime
+from redis.sentinel import Sentinel
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from flask_cors import CORS
@@ -22,7 +23,7 @@ app.config.update(
 # db = MongoEngine(app)
 
 if app.config['USE_SENTINEL']:
-    sentinel_ports = app.config['REDIS_SENTINEL_PORTS']
+    sentinel_ports = app.config['REDIS_SENTINEL_PORT']
     redis_host = app.config['REDIS_HOST']
     sentinel = Sentinel([(redis_host, port)
                         for port in sentinel_ports], 
