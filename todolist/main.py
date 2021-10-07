@@ -71,7 +71,7 @@ def update(id):
             pass
     else:
         print(request.method)
-        return render_template('update.html', tasks=task)
+        return render_template('update.html', task=task)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
